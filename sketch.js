@@ -1,10 +1,11 @@
 class Pipe {
-  constructor(gap, gapLoc, speed, width) {
+  constructor(gap, speed, width, startDelay) {
     this.gap = gap;
     this.gapLoc = random(0, windowHeight);
     this.speed = speed;
     this.width = width;
-    this.x = windowWidth;
+    this.startDelay = startDelay;
+    this.x = windowWidth + startDelay;
     this.yUpper = windowHeight - this.gapLoc - (this.gap / 2);
     this.yLower = windowHeight - this.yUpper;
 
@@ -32,17 +33,29 @@ class Pipe {
       this.reset();
     }
   }
-
 }
-
+let pipes = [];
+var frame = 0;
+var freq = 3;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(255);
-  pipe = new Pipe(100, 400, 2, 50);
+
+  var framesToPass = pipes.speed * windowWidth;
+  var gap = 100;
+  var speed = 2;
+  var width = 50;
+  for (let i = 0; i < freq; i++) {
+    pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
+                          i * ((windowWidth + width) / (freq)));
+  }
 }
 
 function draw() {
   background(255);
+  frame += 1;
 
-  pipe.step();
+  for (let i = 0; i < freq; i++) {
+    pipes[i].step();
+  }
 }
