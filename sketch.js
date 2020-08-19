@@ -6,26 +6,31 @@ class Pipe {
     this.width = width;
     this.startDelay = startDelay;
     this.x = windowWidth + startDelay;
-    this.yUpper = windowHeight - this.gapLoc - (this.gap / 2);
-    this.yLower = windowHeight - this.yUpper;
-
+    this.yLower = windowHeight - this.gapLoc - (this.gap / 2);
+    this.yUpper = windowHeight - this.yLower;
+    this.lowerPipeColour = [51, 51, 51];
+    this.upperPipeColour = [51, 51, 51];
   }
 
   reset() {
     // Starts the pipe pair from the right of the window with new gap
     this.x = windowWidth;
     this.gapLoc = random(0, windowHeight);
+    this.lowerPipeColour = [51, 51, 51];
+    this.upperPipeColour = [51, 51, 51];
   }
 
   step() {
     // Steps the pipes along the screen
-    fill(51);
-    // Lower pipe
-    this.yLower = this.gapLoc - (this.gap / 2);
-    rect(this.x, 0, this.width, this.yLower);
     // Upper pipe
-    rect(this.x, this.yLower + this.gap, this.width,
-          windowHeight - this.gap - this.yLower);
+    fill(this.upperPipeColour);
+    this.yUpper = this.gapLoc - (this.gap / 2);
+    rect(this.x, 0, this.width, this.yUpper);
+    // Lower pipe
+    fill(this.lowerPipeColour);
+    this.yLower = this.yUpper + this.gap;
+    rect(this.x, this.yLower, this.width,
+          windowHeight - this.gap - this.yUpper);
     // Move
     if (this.x > -this.width) {
       this.x -= this.speed;
@@ -33,53 +38,91 @@ class Pipe {
       this.reset();
     }
   }
+  isCollidingWith(bird) {
+    if (bird.x >= this.x && bird.x <= this.x + this.width && bird.alive) {
+      if (bird.y < this.yUpper) {
+        // Check upper pipe
+        this.upperPipeColour = [255, 0, 0];
+        console.log('Upper collision');
+        return true;
+      } else if (bird.y > this.yLower) {
+        // Check lower pipe
+        this.lowerPipeColour = [255, 0, 0];
+        console.log('Lower collision');
+        return true;
+      } else {
+        this.lowerPipeColour = [51, 51, 51];
+        this.upperPipeColour = [51, 51, 51];
+        return false;
+      }
+    }
+  }
 }
 
 class Bird {
   constructor() {
     this.size = 10;
-    this.jumpSpeed = 3;
+    this.jumpSpeed = 4;
     this.ySpeed = 0;
     this.accelerationConst = 1;
     this.gravity = 0.01;
     this.x = windowWidth / 10;
     this.y = windowHeight / 2;
+    this.score = 0;
+    this.alive = true;
   }
   jump() {
-    // Sudden increase in upwards speed
-    this.ySpeed = this.jumpSpeed;
-    this.accelerationConst = 0;
-    if (this.y > 0) {
-      this.y -= this.ySpeed;
-    }
-  }
-  step() {
-    // Acceleration due to gravity
-    this.ySpeed -= this.gravity * this.accelerationConst;
-
-    // Stop bird going below window
-    if (this.y < windowHeight - this.size) {
-      this.y -= this.ySpeed;
-      if (this.y > windowHeight - this.size) {
-        this.y = windowHeight - this.size;
+    if (this.alive) {
+      // Sudden increase in upwards speed
+      this.ySpeed = this.jumpSpeed;
+      this.accelerationConst = 0;
+      if (this.y > 0) {
+        this.y -= this.ySpeed;
       }
     }
+  }
+  step(pipes) {
+    if (this.alive) {
+      this.score += 1;
 
-    // Stop bird going above window
-    if (this.y < 0) {
-      this.y = 0;
+      // Acceleration due to gravity
+      this.ySpeed -= this.gravity * this.accelerationConst;
+
+      // Stop bird going below window
+      if (this.y < windowHeight - this.size) {
+        this.y -= this.ySpeed;
+        if (this.y > windowHeight - this.size) {
+          this.y = windowHeight - this.size;
+        }
+      }
+
+      // Stop bird going above window
+      if (this.y < 0) {
+        this.y = 0;
+      }
+      this.accelerationConst ++;
+
+      // Draw bird
+      fill(0);
+      ellipse(this.x, this.y, this.size, this.size);
+
+    } else {
+      // If the bird hits a pipe
+      if (this.x > 0) {
+        // Pipe speed
+        this.x -= pipes.speed;
+        fill(255, 0, 0);
+        ellipse(this.x, this.y, this.size, this.size);
+      }
     }
-    this.accelerationConst ++;
-
-    // Draw bird
-    fill(0);
-    ellipse(this.x, this.y, this.size, this.size);
+  }
+  dead() {
+    this.alive = false;
   }
 }
 
 let pipes = [];
-var freq = 1;
-
+var freq = 2;
 function setup() {
   // Window setup
   createCanvas(windowWidth, windowHeight);
@@ -88,7 +131,7 @@ function setup() {
   // Pipes setup
   var framesToPass = pipes.speed * windowWidth;
   var gap = 100;
-  var speed = 2;
+  var speed = 7;
   var width = 50;
   for (let i = 0; i < freq; i++) {
     pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
@@ -103,7 +146,13 @@ function draw() {
   background(255);
 
   // Draw pipes
+  var leadX = windowWidth;
+  var leadPipeIndex = 0;
   for (let i = 0; i < freq; i++) {
+    if (pipes[i].x < leadX) {
+      leadX = pipes[i].x;
+      leadPipeIndex = i;
+    }
     pipes[i].step();
   }
 
@@ -111,5 +160,13 @@ function draw() {
   if (mouseIsPressed) {
     bird.jump();
   }
-  bird.step();
+  bird.step(pipes[leadPipeIndex]);
+  console.log(leadPipeIndex);
+
+  // THIS MAY BE TOO LATE
+  // Check if birds hit pipe in front
+  if (pipes[leadPipeIndex].isCollidingWith(bird)) {
+    bird.dead();
+  }
+
 }
