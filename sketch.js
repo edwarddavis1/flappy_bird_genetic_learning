@@ -34,13 +34,58 @@ class Pipe {
     }
   }
 }
+
+class Bird {
+  constructor() {
+    this.size = 10;
+    this.jumpSpeed = 3;
+    this.ySpeed = 0;
+    this.accelerationConst = 1;
+    this.gravity = 0.01;
+    this.x = windowWidth / 10;
+    this.y = windowHeight / 2;
+  }
+  jump() {
+    // Sudden increase in upwards speed
+    this.ySpeed = this.jumpSpeed;
+    this.accelerationConst = 0;
+    if (this.y > 0) {
+      this.y -= this.ySpeed;
+    }
+  }
+  step() {
+    // Acceleration due to gravity
+    this.ySpeed -= this.gravity * this.accelerationConst;
+
+    // Stop bird going below window
+    if (this.y < windowHeight - this.size) {
+      this.y -= this.ySpeed;
+      if (this.y > windowHeight - this.size) {
+        this.y = windowHeight - this.size;
+      }
+    }
+
+    // Stop bird going above window
+    if (this.y < 0) {
+      this.y = 0;
+    }
+    this.accelerationConst ++;
+
+    // Draw bird
+    fill(0);
+    ellipse(this.x, this.y, this.size, this.size);
+  }
+}
+
 let pipes = [];
-var frame = 0;
-var freq = 3;
+var freq = 1;
+
 function setup() {
+  // Window setup
   createCanvas(windowWidth, windowHeight);
   background(255);
 
+  // Pipes setup
   var framesToPass = pipes.speed * windowWidth;
   var gap = 100;
   var speed = 2;
@@ -49,13 +94,22 @@ function setup() {
     pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
                           i * ((windowWidth + width) / (freq)));
   }
+
+  // Birds setup
+  bird = new Bird();
 }
 
 function draw() {
   background(255);
-  frame += 1;
 
+  // Draw pipes
   for (let i = 0; i < freq; i++) {
     pipes[i].step();
   }
+
+  // Draw birds
+  if (mouseIsPressed) {
+    bird.jump();
+  }
+  bird.step();
 }
