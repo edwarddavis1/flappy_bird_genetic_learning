@@ -11,7 +11,9 @@ class Pipe {
     this.lowerPipeColour = [51, 51, 51];
     this.upperPipeColour = [51, 51, 51];
   }
-
+  setSpeed(newSpeed) {
+    this.speed = newSpeed;
+  }
   reset() {
     // Starts the pipe pair from the right of the window with new gap
     this.x = windowWidth;
@@ -39,6 +41,7 @@ class Pipe {
     }
   }
   isCollidingWith(bird) {
+    // Returns true if bird colliding with pipe, false otherwise
     if (bird.x >= this.x && bird.x <= this.x + this.width && bird.alive) {
       if (bird.y < this.yUpper) {
         // Check upper pipe
@@ -112,7 +115,7 @@ class Bird {
       this.accelerationConst ++;
 
       // Draw bird
-      fill(0);
+      fill(0, 50);
       ellipse(this.x, this.y, this.size, this.size);
 
     } else {
@@ -130,8 +133,11 @@ class Bird {
   }
 }
 
-let pipes = [];
+var pipes = [];
 var freq = 2;
+var birds = [];
+var numBirds = 250;
+var deadBirds = 0;
 function setup() {
   // Window setup
   createCanvas(windowWidth, windowHeight);
@@ -148,7 +154,9 @@ function setup() {
   }
 
   // Birds setup
-  bird = new Bird();
+  for (let i = 0; i < numBirds; i++) {
+    birds[i] = new Bird();
+  }
 }
 
 function draw() {
@@ -165,16 +173,24 @@ function draw() {
     pipes[i].step();
   }
 
-  // Manual bird control
-  // if (mouseIsPressed) {
-  //   bird.jump();
-  // }
   // Draw birds
-  bird.step(pipes[leadPipeIndex]);
+  for (let i = 0; i < numBirds; i++) {
+    // Manual bird control
+    // if (mouseIsPressed) {
+    //   bird.jump();
+    // }
 
-  // Check if birds hit pipe in front
-  if (pipes[leadPipeIndex].isCollidingWith(bird)) {
-    bird.dead();
+    birds[i].step(pipes[leadPipeIndex]);
+
+    // Check if birds hit pipe in front
+    if (pipes[leadPipeIndex].isCollidingWith(birds[i])) {
+      birds[i].dead();
+      deadBirds += 1;
+    }
   }
 
+  // Check for when last bird dies
+  if (deadBirds == numBirds) {
+
+  }
 }
