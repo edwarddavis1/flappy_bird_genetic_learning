@@ -70,6 +70,8 @@ class Bird {
     this.y = windowHeight / 2;
     this.score = 0;
     this.alive = true;
+
+    this.brain = new NeuralNetwork(4, 4, 1);
   }
   jump() {
     if (this.alive) {
@@ -84,6 +86,13 @@ class Bird {
   step(pipes) {
     if (this.alive) {
       this.score += 1;
+
+      // Bird decides if it's going to jump or not
+      let inputs = [this.y, pipes.x, pipes.yUpper, pipes.yLower];
+      let output = this.brain.predict(inputs);
+      if (output > 0.5) {
+        this.jump();
+      }
 
       // Acceleration due to gravity
       this.ySpeed -= this.gravity * this.accelerationConst;
@@ -156,14 +165,13 @@ function draw() {
     pipes[i].step();
   }
 
+  // Manual bird control
+  // if (mouseIsPressed) {
+  //   bird.jump();
+  // }
   // Draw birds
-  if (mouseIsPressed) {
-    bird.jump();
-  }
   bird.step(pipes[leadPipeIndex]);
-  console.log(leadPipeIndex);
 
-  // THIS MAY BE TOO LATE
   // Check if birds hit pipe in front
   if (pipes[leadPipeIndex].isCollidingWith(bird)) {
     bird.dead();
