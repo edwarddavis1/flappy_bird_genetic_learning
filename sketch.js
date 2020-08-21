@@ -138,6 +138,9 @@ var freq = 2;
 var birds = [];
 var numBirds = 250;
 var deadBirds = 0;
+var generation = 1;
+var bestScore = 0;
+var currentScore = 1;
 function setup() {
   // Window setup
   createCanvas(windowWidth, windowHeight);
@@ -161,6 +164,11 @@ function setup() {
 
 function draw() {
   background(255);
+  textSize(32);
+  fill(0);
+  text('Generation: ' + generation, 10, 30);
+  text('Current Score: ' + currentScore, 10, 80);
+  text('Best Score: ' + bestScore, 10, 130);
 
   // Draw pipes
   var leadX = windowWidth;
@@ -184,6 +192,9 @@ function draw() {
 
     // Check if birds hit pipe in front
     if (pipes[leadPipeIndex].isCollidingWith(birds[i])) {
+      if (birds[i].score > bestScore) {
+        bestScore = birds[i].score;
+      }
       birds[i].dead();
       deadBirds += 1;
     }
@@ -191,6 +202,8 @@ function draw() {
 
   // Check for when last bird dies
   if (deadBirds == numBirds) {
-
+    // Go to next generation
+  } else {
+    currentScore += 1;
   }
 }
