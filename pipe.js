@@ -1,3 +1,6 @@
+// Created by: Edward Davis
+// Inspired by: https://www.youtube.com/watch?v=YtRA6tqgJBc&t=1063s
+
 // This class controls the dimensions of the pipes, gaps in the pipes as well
 // as their speed and frequency.
 // These parameters can be changed to vary the game difficulty

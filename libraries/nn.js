@@ -1,3 +1,4 @@
+// Script taken from: https://github.com/CodingTrain/Toy-Neural-Network-JS.git
 // Other techniques for learning
 
 class ActivationFunction {

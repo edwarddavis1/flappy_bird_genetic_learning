@@ -1,3 +1,6 @@
+// Script taken from: https://github.com/CodingTrain/Toy-Neural-Network-JS.git
+// Matrix functions used by the nn class
+
 // let m = new Matrix(3,2);
 
 class Matrix {

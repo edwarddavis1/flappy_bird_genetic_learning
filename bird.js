@@ -1,8 +1,11 @@
+// Created by: Edward Davis
+// Inspired by: https://www.youtube.com/watch?v=YtRA6tqgJBc&t=1063s
+
 // This class controls the birds using this.brain (nn) and animates the bird
 // using this.step()
 
 class Bird {
-  constructor() {
+  constructor(brain) {
     this.size = 10;
     this.jumpSpeed = 4;
     this.ySpeed = 0;
@@ -13,7 +16,11 @@ class Bird {
     this.score = 0;
     this.alive = true;
 
-    this.brain = new NeuralNetwork(4, 4, 1);
+    if (brain) {
+      this.brain = brain;
+    } else {
+      this.brain = new NeuralNetwork(4, 4, 1);
+    }
   }
   jump() {
     if (this.alive) {

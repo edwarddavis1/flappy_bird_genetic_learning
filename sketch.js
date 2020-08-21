@@ -1,3 +1,6 @@
+// Created by: Edward Davis
+// Inspired by: https://www.youtube.com/watch?v=YtRA6tqgJBc&t=1063s
+
 // The main script for the 'flappy bird' neuroevolution
 // A bird will try to jump through gaps in pipes as they approach, gaining
 // more points the further they get.
