@@ -28,21 +28,33 @@ class Population {
     this.generation = 1;
     this.currentScore = 1;
     this.bestScore = 0;
+    this.currentPopulationScore = 0;
+    this.bestPopulationScore = 0;
+    this.mostSuccessfulBird = null;
+    this.avgY = 0;
 
     // Pipes setup
-    var gap = 100;
-    var speed = 7;
-    var framesToPass = speed * windowWidth;
-    var width = 50;
+    this.gap = 200;
+    this.speed = 9;
+    this.framesToPass = this.speed * windowWidth;
+    this.width = 50;
     for (let i = 0; i < this.pipeFreq; i++) {
-      this.pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
-                            i * ((windowWidth + width) / (this.pipeFreq)));
+      this.pipes[i] = new Pipe(this.gap, this.speed, this.width,
+                            i * ((windowWidth + this.width) / (this.pipeFreq)));
     }
 
     // Birds setup
     for (let i = 0; i < this.numBirds; i++) {
       this.birds[i] = new Bird();
     }
+  }
+
+  populationScore() {
+    this.currentPopulationScore = 0;
+    for (let i = 0; i < this.numBirds; i++) {
+      this.currentPopulationScore += this.birds[i].score;
+    }
+    this.currentPopulationScore /= this.numBirds;
   }
 
   step() {
@@ -52,6 +64,10 @@ class Population {
     text('Generation: ' + this.generation, 10, 30);
     text('Current Score: ' + this.currentScore, 10, 80);
     text('Best Score: ' + this.bestScore, 10, 130);
+    this.populationScore();
+    text('Current Population Score: ' + this.currentPopulationScore, 10, 180);
+    text('Best Population Score: ' + this.bestPopulationScore, 10, 230);
+    text('Birds Remaining: ' + (this.numBirds - this.deadBirds), 10, 280);
 
     // Draw pipes
     var leadX = windowWidth;
@@ -66,11 +82,19 @@ class Population {
     }
 
     // Draw birds
+    let sumY = 0;
+    let avgYDivisor = 0;
     for (let i = 0; i < this.numBirds; i++) {
       // Manual bird control
       // if (mouseIsPressed) {
       //   bird.jump();
       // }
+
+      // Get average position
+      if (this.birds[i].alive) {
+        sumY += this.birds[i].y;
+        avgYDivisor += 1;
+      }
 
       this.birds[i].step(this.pipes[leadPipeIndex]);
 
@@ -84,8 +108,19 @@ class Population {
       }
     }
 
+    // Draw average bird
+    this.avgY = sumY / avgYDivisor;
+    fill(255, 255, 0, 50);
+    ellipse(windowWidth / 10, this.avgY, 20, 20);
+
     // Check for when last bird dies
     if (this.deadBirds == this.numBirds) {
+      // Total score
+      if (this.currentPopulationScore > this.bestPopulationScore) {
+        this.bestPopulationScore = this.currentPopulationScore;
+      }
+      // Get fitnesses
+      this.getFitnesses();
       // Go to next generation
       this.evolve();
     } else {
@@ -99,36 +134,38 @@ class Population {
     this.pipes = [];
 
     // Pipes setup
-    var gap = 100;
-    var speed = 7;
-    var framesToPass = speed * windowWidth;
-    var width = 50;
     for (let i = 0; i < this.pipeFreq; i++) {
-      this.pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
-                            i * ((windowWidth + width) / (this.pipeFreq)));
+      this.pipes[i] = new Pipe(this.gap, this.speed, this.width,
+                            i * ((windowWidth + this.width) / (this.pipeFreq)));
+    }
+  }
+
+  getFitnesses() {
+    for (let i = 0; i < this.numBirds; i++) {
+      this.birds[i].fitness = this.birds[i].score / this.bestScore;
     }
   }
 
   evolve() {
     // Find most successful bird
-    var mostSuccessfulBird = null;
     for (let i = 0; i < this.numBirds; i++) {
-      if (this.birds[i].score == this.currentScore) {
-        mostSuccessfulBird = this.birds[i];
-        break;
+      if (this.birds[i].score >= this.bestScore) {
+        this.mostSuccessfulBird = this.birds[i];
       }
     }
     // Copy its brain
-    var nextGenBrain = mostSuccessfulBird.brain.copy();
+    var nextGenBrain = this.mostSuccessfulBird.brain.copy();
 
     // Delete old population
     this.birds = [];
 
     // Use the new brain for the next population, but with mutations
-    for (let i = 0; i < this.numBirds; i++) {
+    for (let i = 0; i < this.numBirds - 1; i++) {
       let mutatedBrain = nextGenBrain.mutate(mutate);
       this.birds[i] = new Bird(mutatedBrain);
     }
+    // Keep the best brain exactly the same for one of the birds
+    this.birds[this.numBirds - 1] = new Bird(nextGenBrain);
 
     // Restart the game
     this.generation += 1;

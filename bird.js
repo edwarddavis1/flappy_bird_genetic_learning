@@ -7,7 +7,7 @@
 class Bird {
   constructor(brain) {
     this.size = 10;
-    this.jumpSpeed = 4;
+    this.jumpSpeed = 7;
     this.ySpeed = 0;
     this.accelerationConst = 1;
     this.gravity = 0.01;
@@ -15,11 +15,12 @@ class Bird {
     this.y = windowHeight / 2;
     this.score = 0;
     this.alive = true;
+    this.fitness = 0;
 
     if (brain) {
-      this.brain = brain;
+      this.brain = brain.copy();
     } else {
-      this.brain = new NeuralNetwork(4, 4, 1);
+      this.brain = new NeuralNetwork(4, 4, 2);
     }
   }
   jump() {
@@ -38,8 +39,8 @@ class Bird {
 
       // Bird decides if it's going to jump or not
       let inputs = [this.y, pipes.x, pipes.yUpper, pipes.yLower];
-      let output = this.brain.predict(inputs);
-      if (output > 0.5) {
+      let outputs = this.brain.predict(inputs);
+      if (outputs[0] > outputs[1]) {
         this.jump();
       }
 
