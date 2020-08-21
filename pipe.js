@@ -8,7 +8,9 @@
 class Pipe {
   constructor(gap, speed, width, startDelay) {
     this.gap = gap;
-    this.gapLoc = random(0, windowHeight);
+    // this.gapLoc = random(0, windowHeight);
+    this.constGapCounter = 0;
+    this.gapLoc = 0;
     this.speed = speed;
     this.width = width;
     this.startDelay = startDelay;
@@ -24,6 +26,7 @@ class Pipe {
   reset() {
     // Starts the pipe pair from the right of the window with new gap
     this.x = windowWidth;
+    this.gap = 0;
     this.gapLoc = random(0, windowHeight);
     this.lowerPipeColour = [51, 51, 51];
     this.upperPipeColour = [51, 51, 51];

@@ -7,14 +7,14 @@
 // multiple generations
 
 // Mutation function
-function mutate(nnFeature) {
-  let mutationChance = 0.1;
-  if (random(1) < mutationChance) {
-    let mutationAmount = randomGaussian() * 0.5;
-    let mutatedFeature = nnFeature;
-    return mutatedFeature;
+function mutate(x) {
+  if (random(1) < 0.1) {
+    console.log('mutating');
+    let offset = randomGaussian() * 0.5;
+    let newx = x + offset;
+    return newx;
   } else {
-    return nnFeature;
+    return x;
   }
 }
 
