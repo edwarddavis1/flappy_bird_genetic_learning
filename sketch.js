@@ -46,12 +46,10 @@ class Pipe {
       if (bird.y < this.yUpper) {
         // Check upper pipe
         this.upperPipeColour = [255, 0, 0];
-        console.log('Upper collision');
         return true;
       } else if (bird.y > this.yLower) {
         // Check lower pipe
         this.lowerPipeColour = [255, 0, 0];
-        console.log('Lower collision');
         return true;
       } else {
         this.lowerPipeColour = [51, 51, 51];
@@ -133,77 +131,89 @@ class Bird {
   }
 }
 
-var pipes = [];
-var freq = 2;
-var birds = [];
-var numBirds = 250;
-var deadBirds = 0;
-var generation = 1;
-var bestScore = 0;
-var currentScore = 1;
+class Population {
+  constructor(numBirds, pipeFreq) {
+    this.numBirds = numBirds;
+    this.pipeFreq = pipeFreq;
+    this.pipes = [];
+    this.birds = [];
+    this.deadBirds = 0;
+    this.generation = 1;
+    this.currentScore = 1;
+    this.bestScore = 0;
+
+    // Pipes setup
+    var gap = 100;
+    var speed = 7;
+    var framesToPass = speed * windowWidth;
+    var width = 50;
+    for (let i = 0; i < this.pipeFreq; i++) {
+      this.pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
+                            i * ((windowWidth + width) / (this.pipeFreq)));
+    }
+
+    // Birds setup
+    for (let i = 0; i < this.numBirds; i++) {
+      this.birds[i] = new Bird();
+    }
+  }
+
+  step() {
+    // Update text
+    textSize(32);
+    fill(0);
+    text('Generation: ' + this.generation, 10, 30);
+    text('Current Score: ' + this.currentScore, 10, 80);
+    text('Best Score: ' + this.bestScore, 10, 130);
+
+    // Draw pipes
+    var leadX = windowWidth;
+    var leadPipeIndex = 0;
+    for (let i = 0; i < this.pipeFreq; i++) {
+      // Only check for collisions with the leading pipe
+      if (this.pipes[i].x < leadX) {
+        leadX = this.pipes[i].x;
+        leadPipeIndex = i;
+      }
+      this.pipes[i].step();
+    }
+
+    // Draw birds
+    for (let i = 0; i < this.numBirds; i++) {
+      // Manual bird control
+      // if (mouseIsPressed) {
+      //   bird.jump();
+      // }
+
+      this.birds[i].step(this.pipes[leadPipeIndex]);
+
+      // Check if birds hit pipe in front
+      if (this.pipes[leadPipeIndex].isCollidingWith(this.birds[i])) {
+        if (this.birds[i].score > self.bestScore) {
+          self.bestScore = this.birds[i].score;
+        }
+        this.birds[i].dead();
+        this.deadBirds += 1;
+      }
+    }
+
+    // Check for when last bird dies
+    if (this.deadBirds == this.numBirds) {
+      // Go to next generation
+    } else {
+      this.currentScore += 1;
+    }
+  }
+}
+
 function setup() {
   // Window setup
   createCanvas(windowWidth, windowHeight);
   background(255);
-
-  // Pipes setup
-  var framesToPass = pipes.speed * windowWidth;
-  var gap = 100;
-  var speed = 7;
-  var width = 50;
-  for (let i = 0; i < freq; i++) {
-    pipes[i] = new Pipe(gap = gap, speed = speed, width = width,
-                          i * ((windowWidth + width) / (freq)));
-  }
-
-  // Birds setup
-  for (let i = 0; i < numBirds; i++) {
-    birds[i] = new Bird();
-  }
+  population = new Population(250, 2);
 }
 
 function draw() {
   background(255);
-  textSize(32);
-  fill(0);
-  text('Generation: ' + generation, 10, 30);
-  text('Current Score: ' + currentScore, 10, 80);
-  text('Best Score: ' + bestScore, 10, 130);
-
-  // Draw pipes
-  var leadX = windowWidth;
-  var leadPipeIndex = 0;
-  for (let i = 0; i < freq; i++) {
-    if (pipes[i].x < leadX) {
-      leadX = pipes[i].x;
-      leadPipeIndex = i;
-    }
-    pipes[i].step();
-  }
-
-  // Draw birds
-  for (let i = 0; i < numBirds; i++) {
-    // Manual bird control
-    // if (mouseIsPressed) {
-    //   bird.jump();
-    // }
-
-    birds[i].step(pipes[leadPipeIndex]);
-
-    // Check if birds hit pipe in front
-    if (pipes[leadPipeIndex].isCollidingWith(birds[i])) {
-      if (birds[i].score > bestScore) {
-        bestScore = birds[i].score;
-      }
-      birds[i].dead();
-      deadBirds += 1;
-    }
-  }
-
-  // Check for when last bird dies
-  if (deadBirds == numBirds) {
-    // Go to next generation
-  } else {
-    currentScore += 1;
-  }
+  population.step();
 }
