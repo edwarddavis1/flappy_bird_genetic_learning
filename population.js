@@ -9,7 +9,6 @@
 // Mutation function
 function mutate(x) {
   if (random(1) < 0.1) {
-    console.log('mutating');
     let offset = randomGaussian() * 0.5;
     let newx = x + offset;
     return newx;
@@ -19,7 +18,7 @@ function mutate(x) {
 }
 
 class Population {
-  constructor(numBirds, pipeFreq) {
+  constructor(numBirds, pipeFreq, graphics=true) {
     this.numBirds = numBirds;
     this.pipeFreq = pipeFreq;
     this.pipes = [];
@@ -32,6 +31,7 @@ class Population {
     this.bestPopulationScore = 0;
     this.mostSuccessfulBird = null;
     this.avgY = 0;
+    this.graphics = graphics;
 
     // Pipes setup
     this.gap = 200;
@@ -40,12 +40,13 @@ class Population {
     this.width = 50;
     for (let i = 0; i < this.pipeFreq; i++) {
       this.pipes[i] = new Pipe(this.gap, this.speed, this.width,
-                            i * ((windowWidth + this.width) / (this.pipeFreq)));
+                            i * ((windowWidth + this.width) / (this.pipeFreq)),
+                          this.graphics);
     }
 
     // Birds setup
     for (let i = 0; i < this.numBirds; i++) {
-      this.birds[i] = new Bird();
+      this.birds[i] = new Bird(undefined, this.graphics);
     }
   }
 
@@ -110,9 +111,10 @@ class Population {
 
     // Draw average bird
     this.avgY = sumY / avgYDivisor;
-    fill(255, 255, 0, 50);
-    ellipse(windowWidth / 10, this.avgY, 20, 20);
-
+    if (this.graphics) {
+      fill(255, 255, 0, 50);
+      ellipse(windowWidth / 10, this.avgY, 20, 20);
+    }
     // Check for when last bird dies
     if (this.deadBirds == this.numBirds) {
       // Total score
@@ -136,7 +138,8 @@ class Population {
     // Pipes setup
     for (let i = 0; i < this.pipeFreq; i++) {
       this.pipes[i] = new Pipe(this.gap, this.speed, this.width,
-                            i * ((windowWidth + this.width) / (this.pipeFreq)));
+                            i * ((windowWidth + this.width) / (this.pipeFreq)),
+                          this.graphics);
     }
   }
 
@@ -162,10 +165,10 @@ class Population {
     // Use the new brain for the next population, but with mutations
     for (let i = 0; i < this.numBirds - 1; i++) {
       let mutatedBrain = nextGenBrain.mutate(mutate);
-      this.birds[i] = new Bird(mutatedBrain);
+      this.birds[i] = new Bird(mutatedBrain, this.graphics);
     }
     // Keep the best brain exactly the same for one of the birds
-    this.birds[this.numBirds - 1] = new Bird(nextGenBrain);
+    this.birds[this.numBirds - 1] = new Bird(nextGenBrain, this.graphics);
 
     // Restart the game
     this.generation += 1;

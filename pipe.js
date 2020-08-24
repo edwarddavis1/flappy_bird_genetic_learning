@@ -6,11 +6,11 @@
 // These parameters can be changed to vary the game difficulty
 
 class Pipe {
-  constructor(gap, speed, width, startDelay) {
+  constructor(gap, speed, width, startDelay, graphics=true) {
     this.gap = gap;
-    // this.gapLoc = random(0, windowHeight);
+    this.gapLoc = random(0, windowHeight);
+    // this.gapLoc = 0;
     this.constGapCounter = 0;
-    this.gapLoc = 0;
     this.speed = speed;
     this.width = width;
     this.startDelay = startDelay;
@@ -19,6 +19,7 @@ class Pipe {
     this.yUpper = windowHeight - this.yLower;
     this.lowerPipeColour = [51, 51, 51];
     this.upperPipeColour = [51, 51, 51];
+    this.graphics = graphics;
   }
   setSpeed(newSpeed) {
     this.speed = newSpeed;
@@ -26,7 +27,6 @@ class Pipe {
   reset() {
     // Starts the pipe pair from the right of the window with new gap
     this.x = windowWidth;
-    this.gap = 0;
     this.gapLoc = random(0, windowHeight);
     this.lowerPipeColour = [51, 51, 51];
     this.upperPipeColour = [51, 51, 51];
@@ -35,14 +35,17 @@ class Pipe {
   step() {
     // Steps the pipes along the screen
     // Upper pipe
-    fill(this.upperPipeColour);
     this.yUpper = this.gapLoc - (this.gap / 2);
-    rect(this.x, 0, this.width, this.yUpper);
     // Lower pipe
-    fill(this.lowerPipeColour);
     this.yLower = this.yUpper + this.gap;
-    rect(this.x, this.yLower, this.width,
-          windowHeight - this.gap - this.yUpper);
+    // Animate
+    if (this.graphics) {
+      fill(this.upperPipeColour);
+      rect(this.x, 0, this.width, this.yUpper);
+      fill(this.lowerPipeColour);
+      rect(this.x, this.yLower, this.width,
+            windowHeight - this.gap - this.yUpper);
+    }
     // Move
     if (this.x > -this.width) {
       this.x -= this.speed;

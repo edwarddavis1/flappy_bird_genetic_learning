@@ -11,10 +11,13 @@ function setup() {
   // Window setup
   createCanvas(windowWidth, windowHeight);
   background(255);
-  population = new Population(250, 2);
+  population = new Population(50, 2, false);
 }
 
 function draw() {
   background(255);
   population.step();
 }
+
+// TODO: would be good to add a method of evolving without animating the
+// game - maybe animating the progress after 100 or so generations

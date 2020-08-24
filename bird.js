@@ -5,7 +5,7 @@
 // using this.step()
 
 class Bird {
-  constructor(brain) {
+  constructor(brain, graphics=true) {
     this.size = 10;
     this.jumpSpeed = 7;
     this.ySpeed = 0;
@@ -16,6 +16,8 @@ class Bird {
     this.score = 0;
     this.alive = true;
     this.fitness = 0;
+    this.graphics = graphics;
+    console.log(graphics);
 
     if (brain) {
       this.brain = brain.copy();
@@ -62,16 +64,19 @@ class Bird {
       this.accelerationConst ++;
 
       // Draw bird
-      fill(0, 50);
-      ellipse(this.x, this.y, this.size, this.size);
-
+      if (this.graphics) {
+        fill(0, 50);
+        ellipse(this.x, this.y, this.size, this.size);
+      }
     } else {
       // If the bird hits a pipe
       if (this.x > 0) {
         // Pipe speed
         this.x -= pipes.speed;
-        fill(255, 0, 0);
-        ellipse(this.x, this.y, this.size, this.size);
+        if (this.graphics) {
+          fill(255, 0, 0);
+          ellipse(this.x, this.y, this.size, this.size);
+        }
       }
     }
   }
