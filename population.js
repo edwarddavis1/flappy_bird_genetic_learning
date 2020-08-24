@@ -60,15 +60,17 @@ class Population {
 
   step() {
     // Update text
-    textSize(32);
-    fill(0);
-    text('Generation: ' + this.generation, 10, 30);
-    text('Current Score: ' + this.currentScore, 10, 80);
-    text('Best Score: ' + this.bestScore, 10, 130);
-    this.populationScore();
-    text('Current Population Score: ' + this.currentPopulationScore, 10, 180);
-    text('Best Population Score: ' + this.bestPopulationScore, 10, 230);
-    text('Birds Remaining: ' + (this.numBirds - this.deadBirds), 10, 280);
+    if (this.graphics) {
+      textSize(32);
+      fill(0);
+      text('Generation: ' + this.generation, 10, 30);
+      text('Current Score: ' + this.currentScore, 10, 80);
+      text('Best Score: ' + this.bestScore, 10, 130);
+      this.populationScore();
+      text('Current Population Score: ' + this.currentPopulationScore, 10, 180);
+      text('Best Population Score: ' + this.bestPopulationScore, 10, 230);
+      text('Birds Remaining: ' + (this.numBirds - this.deadBirds), 10, 280);
+    }
 
     // Draw pipes
     var leadX = windowWidth;

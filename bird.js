@@ -17,7 +17,6 @@ class Bird {
     this.alive = true;
     this.fitness = 0;
     this.graphics = graphics;
-    console.log(graphics);
 
     if (brain) {
       this.brain = brain.copy();
